@@ -53,6 +53,7 @@ RUN sed s/$(hostname_)/$(cat /opt/hostname | xargs echo -n).$(cat /etc/mailname 
     && rm /tmp/hosts_ \
     && echo $HOSTNAME > /etc/hostname \
     && sleep 5;
+RUN mkdir -p /var/run/mysqld
 RUN chown -R mysql:mysql /var/lib/mysql /var/run/mysqld \
     && service mysql start \
     && sed -i 's/1.3.0/1.3.3/' /opt/iredmail/pkgs/MD5.misc /opt/iredmail/conf/roundcube \
