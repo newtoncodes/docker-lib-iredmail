@@ -17,9 +17,8 @@ RUN echo "APT::Install-Recommends 0;" >> /etc/apt/apt.conf.d/01-no-recommends \
     && echo "APT::Install-Suggests 0;" >> /etc/apt/apt.conf.d/01-no-recommends \
     && echo $TIMEZONE > /etc/timezone \
     && apt-get -q update \
-    &&  apt-get upgrade -y \
-    && apt-get install -y -q \
-      apt-utils \
+    && apt-get upgrade -y \
+    && apt-get install -y -q apt-utils \
     && apt-get install -y -q \
       wget \
       bzip2 \
@@ -53,7 +52,9 @@ RUN sed s/$(hostname_)/$(cat /opt/hostname | xargs echo -n).$(cat /etc/mailname 
     && cat /tmp/hosts_ > /etc/hosts \
     && rm /tmp/hosts_ \
     && echo $HOSTNAME > /etc/hostname \
-    && sleep 20;service mysql start \
+    && sleep 5; \
+    && chown -R mysql:mysql /var/lib/mysql /var/run/mysqld \
+    && service mysql start \
     && sed -i 's/1.3.0/1.3.3/' /opt/iredmail/pkgs/MD5.misc /opt/iredmail/conf/roundcube \
     && sed -i 's/9f81625029663c7b19402542356abd5e/71b16babe3beb7639ad7a4595b3ac92a/' /opt/iredmail/pkgs/MD5.misc \
     && apt-get autoremove -y -q \
