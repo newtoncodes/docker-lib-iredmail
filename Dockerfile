@@ -65,7 +65,8 @@ RUN mysqld --initialize-insecure
 RUN echo "Database initialized."
 RUN sleep 10
 RUN cat /etc/mysql/mysql.conf.d/mysqld.cnf
-RUN service mysql start
+RUN mysqld &
+RUN sleep 10
 
 RUN cat /var/log/mysql/error.log
 RUN \
