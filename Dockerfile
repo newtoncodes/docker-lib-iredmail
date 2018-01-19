@@ -58,6 +58,8 @@ RUN sed s/$(hostname_)/$(cat /opt/hostname | xargs echo -n).$(cat /etc/mailname 
     && sleep 5;
 RUN mkdir -p /var/run/mysqld
 RUN mkdir -p /var/run/mysql
+RUN rm -rf /var/lib/mysql
+RUN mkdir -p /var/lib/mysql
 RUN chown -R mysql:mysql /var/lib/mysql /var/run/mysqld /var/run/mysql
 RUN mysqld --initialize-insecure
 RUN echo "Database initialized."
