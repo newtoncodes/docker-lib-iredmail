@@ -38,11 +38,11 @@ if [ ! -z ${MYSQL_ROOT_PASSWORD} ]; then
         # Update my.cnf for root
         echo "[client]\nuser=root\npassword=$MYSQL_ROOT_PASSWORD" > /root/.my.cnf
     fi; 
-fi 
+fi
 
 
 # Update default email accounts
-if [ ! -z ${DOMAIN} ]; then 
+if [ ! -z ${DOMAIN} ]; then
     echo "(postmaster) "
     tmp=$(tempfile)
     mysqldump -uroot -p${MYSQL_ROOT_PASSWORD} vmail mailbox alias domain domain_admins -r $tmp
