@@ -11,7 +11,9 @@ sed -i "s/innodb_buffer_pool_size.*/innodb_buffer_pool_size         = $(printf "
 if [ "$1" = "bash" ] && [ ! -f /var/lib/mysql/ibdata1 ]; then
     echo "Initializing..."
     mkdir -p /var/lib/mysql
+    mkdir -p /var/run/mysqld
 	chown -R mysql:mysql /var/lib/mysql
+	chown -R mysql:mysql /var/run/mysqld
     mysqld --initialize-insecure
     echo "Database initialized."
 
