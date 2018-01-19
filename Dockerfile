@@ -37,6 +37,9 @@ RUN echo "APT::Install-Recommends 0;" >> /etc/apt/apt.conf.d/01-no-recommends \
 COPY ./uname /bin/uname
 COPY ./hostname /bin/hostname
 
+RUN chmod +x /bin/uname
+RUN chmod +x /bin/hostname
+
 # Install of iRedMail from sources
 WORKDIR /opt/iredmail
 
@@ -94,6 +97,12 @@ ADD services/postfix.sh /etc/service/postfix/run
 ADD services/amavis.sh /etc/service/amavis/run
 ADD services/iredapd.sh /etc/service/iredapd/run
 ADD services/dovecot.sh /etc/service/dovecot/run
+RUN chmod +x /etc/rc.local
+RUN chmod +x /etc/service/mysql/run
+RUN chmod +x /etc/service/postfix/run
+RUN chmod +x /etc/service/amavis/run
+RUN chmod +x /etc/service/iredapd/run
+RUN chmod +x /etc/service/dovecot/run
 
 # Frontend
 ADD services/memcached.sh /etc/service/memcached/run
@@ -101,11 +110,19 @@ ADD services/sogo.sh /etc/service/sogo/run
 ADD services/iredadmin.sh /etc/service/iredadmin/run
 ADD services/php7-fpm.sh /etc/service/php7-fpm/run
 ADD services/nginx.sh /etc/service/httpd/run
+RUN chmod +x /etc/service/memcached/run
+RUN chmod +x /etc/service/sogo/run
+RUN chmod +x /etc/service/iredadmin/run
+RUN chmod +x /etc/service/php7-fpm/run
+RUN chmod +x /etc/service/httpd/run
 
 # Enhancement
 ADD services/fail2ban.sh /etc/service/fail2ban/run
 ADD services/clamav-daemon.sh /etc/service/clamav-daemon/run
 ADD services/clamav-freshclam.sh /etc/service/clamav-freshclam/run
+RUN chmod +x /etc/service/fail2ban/run
+RUN chmod +x /etc/service/clamav-daemon/run
+RUN chmod +x /etc/service/clamav-freshclam/run
 
 ### Purge some packets and save disk space
 RUN apt-get purge -y -q dialog apt-utils augeas-tools \
