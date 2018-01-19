@@ -56,49 +56,17 @@ RUN sed s/$(hostname_)/$(cat /opt/hostname | xargs echo -n).$(cat /etc/mailname 
     && rm /tmp/hosts_ \
     && echo $HOSTNAME > /etc/hostname \
     && sleep 5;
-RUN mkdir -p /var/run/mysqld
-RUN mkdir -p /var/run/mysql
-RUN rm -rf /var/lib/mysql
-RUN mkdir -p /var/lib/mysql
-RUN chown -R mysql:mysql /var/lib/mysql /var/run/mysqld /var/run/mysql
-RUN mysqld --initialize-insecure
-RUN echo "Database initialized."
-RUN sleep 10
-RUN cat /etc/mysql/mysql.conf.d/mysqld.cnf
-RUN mysqld &
-RUN sleep 10
 
-RUN cat /var/log/mysql/error.log
 RUN \
        sed -i 's/1.3.0/1.3.3/' /opt/iredmail/pkgs/MD5.misc /opt/iredmail/conf/roundcube \
     && sed -i 's/9f81625029663c7b19402542356abd5e/71b16babe3beb7639ad7a4595b3ac92a/' /opt/iredmail/pkgs/MD5.misc \
     && apt-get autoremove -y -q \
     && apt-get clean -y -q
 
-RUN IREDMAIL_DEBUG='NO' \
-    CHECK_NEW_IREDMAIL='NO' \
-    AUTO_USE_EXISTING_CONFIG_FILE=y \
-    AUTO_INSTALL_WITHOUT_CONFIRM=y \
-    AUTO_CLEANUP_REMOVE_SENDMAIL=y \
-    AUTO_CLEANUP_REMOVE_MOD_PYTHON=y \
-    AUTO_CLEANUP_REPLACE_FIREWALL_RULES=n \
-    AUTO_CLEANUP_RESTART_IPTABLES=n \
-    AUTO_CLEANUP_REPLACE_MYSQL_CONFIG=y \
-    AUTO_CLEANUP_RESTART_POSTFIX=n bash iRedMail.sh
-
-### Final configuration
-RUN . ./config \
-    && sed -i 's/PREFORK=.*$'/PREFORK=$SOGO_WORKERS/ /etc/default/sogo \
-    && sed -i 's/WOWorkersCount.*$'/WOWorkersCount=$SOGO_WORKERS\;/ /etc/sogo/sogo.conf \
-    && sed -i '/^Foreground /c Foreground true' /etc/clamav/clamd.conf \
-    && sed -i '/init.d/c pkill -sighup clamd' /etc/logrotate.d/clamav-daemon \
-    && sed -i '/^Foreground /c Foreground true' /etc/clamav/freshclam.conf \
-    && sed -i 's/^bind-address/#bind-address/' /etc/mysql/mysql.conf.d/mysqld.cnf
-
 # Prepare for the first run
-RUN tar jcf /root/mysql.tar.bz2 /var/lib/mysql && rm -rf /var/lib/mysql \
-    && tar jcf /root/vmail.tar.bz2 /var/vmail && rm -rf /var/vmail \
-    && tar jcf /root/clamav.tar.bz2 /var/lib/clamav && rm -rf /var/lib/clamav
+RUN rm -rf /var/lib/mysql \
+    && rm -rf /var/vmail \
+    && rm -rf /var/lib/clamav
 
 # Core Services
 ADD rc.local /etc/rc.local
@@ -146,3 +114,9 @@ RUN apt-get purge -y -q dialog apt-utils augeas-tools \
 EXPOSE 80 443 25 587 110 143 993 995
 
 VOLUME ["/var/lib/mysql", "/var/vmail", "/var/lib/clamav"]
+
+COPY entrypoint.sh /usr/bin/entrypoint
+RUN chmod +x /usr/bin/entrypoint
+
+ENTRYPOINT ["/usr/bin/entrypoint"]
+CMD ["bash"]
