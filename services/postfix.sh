@@ -22,6 +22,8 @@ if [ ! -z ${HOSTNAME} ]; then
 fi;
 
 
+chown -R vmail:vmail /var/vmail
+
 # Restore data in case of first run
 if [ ! -d /var/vmail/backup ]; then
     echo "*** Creating vmail structure.."

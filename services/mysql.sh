@@ -16,6 +16,9 @@ while ! mysqladmin ping -h localhost --silent; do
 done
 echo
 
+
+chown -R mysql:mysql /var/lib/mysql
+
 # Update root password
 if [ ! -z ${MYSQL_ROOT_PASSWORD} ]; then 
     echo -n "*** Configuring MySQL database.. "
@@ -42,7 +45,7 @@ fi
 if [ ! -z ${DOMAIN} ]; then 
     echo "(postmaster) "
     tmp=$(tempfile)
-    mysqldump -u root -p${MYSQL_ROOT_PASSWORD} vmail mailbox alias domain domain_admins -r $tmp
+    mysqldump -h${MYSQL_HOST} -u root -p${MYSQL_ROOT_PASSWORD} vmail mailbox alias domain domain_admins -r $tmp
     sed -i "s/DOMAIN/${DOMAIN}/g" $tmp
     
     # Update default email accounts
