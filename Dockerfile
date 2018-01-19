@@ -62,6 +62,7 @@ RUN chown -R mysql:mysql /var/lib/mysql /var/run/mysqld /var/run/mysql
 RUN mysqld --initialize-insecure
 RUN echo "Database initialized."
 RUN sleep 10
+RUN cat /etc/mysql/mysql.conf.d/mysqld.cnf
 RUN service mysql start \
     && sed -i 's/1.3.0/1.3.3/' /opt/iredmail/pkgs/MD5.misc /opt/iredmail/conf/roundcube \
     && sed -i 's/9f81625029663c7b19402542356abd5e/71b16babe3beb7639ad7a4595b3ac92a/' /opt/iredmail/pkgs/MD5.misc \
