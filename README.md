@@ -2,6 +2,8 @@
 
 Basic IRedMail image, no additional functionality. 
 
-Fork of: https://github.com/lejmr/iredmail-docker
+Copy of: https://github.com/lejmr/iredmail-docker
 
-Removed adminer.
+- It does NOT install iredmail during build like the lejmr version. Instead, it will install on first run.
+
+- Removed adminer.
