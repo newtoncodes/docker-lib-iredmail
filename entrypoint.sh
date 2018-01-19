@@ -17,6 +17,18 @@ if [ "$1" = "bash" ] && [ ! -f /var/lib/mysql/ibdata1 ]; then
     mysqld --initialize-insecure
     echo "Database initialized."
 
+    mkdir -p /var/run/clamav
+    chown clamav:clamav /var/run/clamav
+
+    mkdir -p /var/lib/clamav
+    chown clamav:clamav /var/lib/clamav
+
+    mkdir -p /var/vmail
+    chown vmail:vmail /var/vmail
+
+    mkdir -p /var/run/vmail
+    chown vmail:vmail /var/run/vmail
+
     mysqld --skip-networking --socket=/var/run/mysqld/mysqld.sock &
     pid="$!"
 
