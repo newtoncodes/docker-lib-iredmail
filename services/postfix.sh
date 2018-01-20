@@ -23,6 +23,11 @@ fi;
 
 
 chown -R vmail:vmail /var/vmail
+if [ -f /var/vmail/.cv ]; then
+    chown root:root /var/vmail/.cv
+    chmod 600 /var/vmail/.cv
+fi
+
 
 # Restore data in case of first run
 if [ ! -d /var/vmail/backup ]; then

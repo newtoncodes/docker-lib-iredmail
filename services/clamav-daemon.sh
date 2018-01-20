@@ -13,6 +13,4 @@ if [ ! -e /var/lib/clamav/main.cvd ]; then
    rm /root/clamav.tar.bz2
 fi;
 
-mkdir -p /var/run/clamav 
-chown clamav:clamav /var/run/clamav
 exec /usr/sbin/clamd
