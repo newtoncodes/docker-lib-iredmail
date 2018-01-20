@@ -23,10 +23,6 @@ mkdir -p /var/run/vmail
 
 chown -R mysql:mysql /var/lib/mysql
 chown -R mysql:mysql /var/run/mysqld
-chown clamav:clamav /var/run/clamav
-chown clamav:clamav /var/lib/clamav
-chown vmail:vmail /var/vmail
-chown vmail:vmail /var/run/vmail
 
 echo "Generating config..."
 sh ./config-gen ${hostname} ${domain} > ./config
@@ -69,6 +65,11 @@ AUTO_CLEANUP_RESTART_IPTABLES=n \
 AUTO_CLEANUP_REPLACE_MYSQL_CONFIG=y \
 AUTO_CLEANUP_RESTART_POSTFIX=n \
 bash iRedMail.sh
+
+chown clamav:clamav /var/run/clamav
+chown clamav:clamav /var/lib/clamav
+chown vmail:vmail /var/vmail
+chown vmail:vmail /var/run/vmail
 
 . /opt/iredmail/config \
     && sed -i 's/PREFORK=.*$'/PREFORK=$SOGO_WORKERS/ /etc/default/sogo \
