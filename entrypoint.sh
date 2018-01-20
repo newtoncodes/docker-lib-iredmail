@@ -12,21 +12,21 @@ sed s/$(hostname_)/$(cat /opt/hostname | xargs echo -n).$(cat /etc/mailname | xa
     && echo $HOSTNAME > /etc/hostname \
     && sleep 5;
 
+mkdir -p /var/lib/mysql
+mkdir -p /var/run/mysqld
+mkdir -p /var/run/clamav
+mkdir -p /var/lib/clamav
+mkdir -p /var/vmail
+mkdir -p /var/run/vmail
+
+chown -R mysql:mysql /var/lib/mysql
+chown -R mysql:mysql /var/run/mysqld
+chown clamav:clamav /var/run/clamav
+chown clamav:clamav /var/lib/clamav
+chown vmail:vmail /var/vmail
+chown vmail:vmail /var/run/vmail
+
 if [ "$1" = "/sbin/my_init" ] && [ ! -f /var/lib/mysql/ibdata1 ]; then
-    mkdir -p /var/lib/mysql
-    mkdir -p /var/run/mysqld
-    mkdir -p /var/run/clamav
-    mkdir -p /var/lib/clamav
-    mkdir -p /var/vmail
-    mkdir -p /var/run/vmail
-
-    chown -R mysql:mysql /var/lib/mysql
-    chown -R mysql:mysql /var/run/mysqld
-    chown clamav:clamav /var/run/clamav
-    chown clamav:clamav /var/lib/clamav
-    chown vmail:vmail /var/vmail
-    chown vmail:vmail /var/run/vmail
-
     echo "Generating config..."
     sh ./config-gen ${HOSTNAME} ${DOMAIN} > ./config
     echo "Config ready."
