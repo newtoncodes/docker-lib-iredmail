@@ -40,9 +40,11 @@ RUN wget -O - https://bitbucket.org/zhb/iredmail/downloads/iRedMail-"${IREDMAIL_
 
 COPY ./config-gen /opt/iredmail/config-gen
 
-RUN rm -rf /var/lib/mysql \
-    && rm -rf /var/vmail \
-    && rm -rf /var/lib/clamav
+# Pre-install
+COPY install.sh /install.sh
+RUN bash -l /install.sh
+RUN rm -rf /install.sh
+
 
 # Core Services
 ADD rc.local /etc/rc.local
