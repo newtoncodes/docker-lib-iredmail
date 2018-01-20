@@ -18,6 +18,7 @@ echo
 
 
 chown -R mysql:mysql /var/lib/mysql
+tmp=$(tempfile)
 
 # Update root password
 if [ ! -z ${MYSQL_ROOT_PASSWORD} ]; then 
@@ -37,44 +38,43 @@ if [ ! -z ${MYSQL_ROOT_PASSWORD} ]; then
     
         # Update my.cnf for root
         echo "[client]\nuser=root\npassword=$MYSQL_ROOT_PASSWORD" > /root/.my.cnf
-    fi; 
-fi
+    fi;
 
-
-# Update default email accounts
-if [ ! -z ${DOMAIN} ]; then
-    echo "(postmaster) "
-    tmp=$(tempfile)
-    mysqldump -uroot -p${MYSQL_ROOT_PASSWORD} vmail mailbox alias domain domain_admins -r $tmp
-    sed -i "s/DOMAIN/${DOMAIN}/g" $tmp
-    
     # Update default email accounts
-    if [ ! -z ${POSTMASTER_PASSWORD} ]; then
-        pppp=$(doveadm pw -s "ssha512" -p "$POSTMASTER_PASSWORD")
-        echo "(postmaster password) "
-        echo "UPDATE mailbox SET password='${pppp}' WHERE username='postmaster@${DOMAIN}';" >> $tmp
+    if [ ! -z ${DOMAIN} ]; then
+        echo "(postmaster) "
+        mysqldump -uroot -p${MYSQL_ROOT_PASSWORD} vmail mailbox alias domain domain_admins -r $tmp
+        sed -i "s/DOMAIN/${DOMAIN}/g" $tmp
+
+        # Update default email accounts
+        if [ ! -z ${POSTMASTER_PASSWORD} ]; then
+            pppp=$(doveadm pw -s "ssha512" -p "$POSTMASTER_PASSWORD")
+            echo "(postmaster password) "
+            echo "UPDATE mailbox SET password='${pppp}' WHERE username='postmaster@${DOMAIN}';" >> $tmp
+        fi
+
+        mysql -u root -p${MYSQL_ROOT_PASSWORD} vmail < $tmp > /dev/null 2>&1
+        rm $tmp
     fi
-    
-    mysql -u root -p${MYSQL_ROOT_PASSWORD} vmail < $tmp > /dev/null 2>&1
-    rm $tmp
+
+    # Update passwords for service accounts
+    . /opt/iredmail/.cv
+    tmp=$(tempfile)
+    echo "DELETE FROM user WHERE Host='hostname.domain';" >> $tmp
+    echo "SET PASSWORD FOR 'vmail'@'localhost' = PASSWORD('$VMAIL_DB_BIND_PASSWD');" >> $tmp
+    echo "SET PASSWORD FOR 'vmailadmin'@'localhost' = PASSWORD('$VMAIL_DB_ADMIN_PASSWD');" >> $tmp
+    echo "SET PASSWORD FOR 'amavisd'@'localhost' = PASSWORD('$AMAVISD_DB_PASSWD');" >> $tmp
+    echo "SET PASSWORD FOR 'iredadmin'@'localhost' = PASSWORD('$IREDADMIN_DB_PASSWD');" >> $tmp
+    echo "SET PASSWORD FOR 'roundcube'@'localhost' = PASSWORD('$RCM_DB_PASSWD');" >> $tmp
+    echo "SET PASSWORD FOR 'sogo'@'localhost' = PASSWORD('$SOGO_DB_PASSWD');" >> $tmp
+    #echo "SET PASSWORD FOR 'vmail'@'localhost' = PASSWORD('$SOGO_SIEVE_MASTER_PASSWD');" >> $tmp
+    echo "SET PASSWORD FOR 'iredapd'@'localhost' = PASSWORD('$IREDAPD_DB_PASSWD');" >> $tmp
+    echo "FLUSH PRIVILEGES;" >> $tmp
+    echo "(service accounts) "
+    mysql -u root -p${MYSQL_ROOT_PASSWORD} mysql < $tmp > /dev/null 2>&1
+
 fi
 
-
-# Update passwords for service accounts
-. /opt/iredmail/.cv
-tmp=$(tempfile)
-echo "DELETE FROM user WHERE Host='hostname.domain';" >> $tmp
-echo "SET PASSWORD FOR 'vmail'@'localhost' = PASSWORD('$VMAIL_DB_BIND_PASSWD');" >> $tmp
-echo "SET PASSWORD FOR 'vmailadmin'@'localhost' = PASSWORD('$VMAIL_DB_ADMIN_PASSWD');" >> $tmp
-echo "SET PASSWORD FOR 'amavisd'@'localhost' = PASSWORD('$AMAVISD_DB_PASSWD');" >> $tmp
-echo "SET PASSWORD FOR 'iredadmin'@'localhost' = PASSWORD('$IREDADMIN_DB_PASSWD');" >> $tmp
-echo "SET PASSWORD FOR 'roundcube'@'localhost' = PASSWORD('$RCM_DB_PASSWD');" >> $tmp
-echo "SET PASSWORD FOR 'sogo'@'localhost' = PASSWORD('$SOGO_DB_PASSWD');" >> $tmp
-#echo "SET PASSWORD FOR 'vmail'@'localhost' = PASSWORD('$SOGO_SIEVE_MASTER_PASSWD');" >> $tmp
-echo "SET PASSWORD FOR 'iredapd'@'localhost' = PASSWORD('$IREDAPD_DB_PASSWD');" >> $tmp
-echo "FLUSH PRIVILEGES;" >> $tmp
-echo "(service accounts) "
-mysql -u root -p${MYSQL_ROOT_PASSWORD} mysql < $tmp > /dev/null 2>&1
 
 
 # Stop temporary MySQL
