@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 domain=example.com
 hostname=mail
 
