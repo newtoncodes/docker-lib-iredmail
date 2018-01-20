@@ -1,25 +1,39 @@
 #!/usr/bin/env bash
 
+echo "Domain: $DOMAIN"
+echo "Hostname: $HOSTNAME"
+
+echo ${DOMAIN} > /etc/mailname
+echo ${HOSTNAME} > /opt/hostname
+
+sed s/$(hostname_)/$(cat /opt/hostname | xargs echo -n).$(cat /etc/mailname | xargs echo -n)/ /etc/hosts > /tmp/hosts_ \
+    && cat /tmp/hosts_ > /etc/hosts \
+    && rm /tmp/hosts_ \
+    && echo $HOSTNAME > /etc/hostname \
+    && sleep 5;
+
 if [ "$1" = "/sbin/my_init" ] && [ ! -f /var/lib/mysql/ibdata1 ]; then
-    echo "Initializing..."
     mkdir -p /var/lib/mysql
     mkdir -p /var/run/mysqld
-	chown -R mysql:mysql /var/lib/mysql
-	chown -R mysql:mysql /var/run/mysqld
+    mkdir -p /var/run/clamav
+    mkdir -p /var/lib/clamav
+    mkdir -p /var/vmail
+    mkdir -p /var/run/vmail
+
+    chown -R mysql:mysql /var/lib/mysql
+    chown -R mysql:mysql /var/run/mysqld
+    chown clamav:clamav /var/run/clamav
+    chown clamav:clamav /var/lib/clamav
+    chown vmail:vmail /var/vmail
+    chown vmail:vmail /var/run/vmail
+
+    echo "Generating config..."
+    sh ./config-gen ${HOSTNAME} ${DOMAIN} > ./config
+    echo "Config ready."
+
+    echo "Initializing database..."
     mysqld --initialize-insecure
     echo "Database initialized."
-
-    mkdir -p /var/run/clamav
-    chown clamav:clamav /var/run/clamav
-
-    mkdir -p /var/lib/clamav
-    chown clamav:clamav /var/lib/clamav
-
-    mkdir -p /var/vmail
-    chown vmail:vmail /var/vmail
-
-    mkdir -p /var/run/vmail
-    chown vmail:vmail /var/run/vmail
 
     mysqld --skip-networking --socket=/var/run/mysqld/mysqld.sock &
     pid="$!"
@@ -43,17 +57,6 @@ if [ "$1" = "/sbin/my_init" ] && [ ! -f /var/lib/mysql/ibdata1 ]; then
     echo "MySQL is ready."
     echo "Setting up iredmail..."
 
-    mkdir -p /var/run/mysqld
-    mkdir -p /var/run/mysql
-    mkdir -p /var/lib/mysql
-    chown -R mysql:mysql /var/lib/mysql /var/run/mysqld /var/run/mysql
-
-    mkdir -p /var/vmail
-    chown -R mysql:mysql /var/vmail
-
-    mkdir -p /var/lib/clamav
-    chown -R clamav:clamav /var/lib/clamav
-
     IREDMAIL_DEBUG='NO' \
     CHECK_NEW_IREDMAIL='NO' \
     AUTO_USE_EXISTING_CONFIG_FILE=y \
@@ -73,6 +76,9 @@ if [ "$1" = "/sbin/my_init" ] && [ ! -f /var/lib/mysql/ibdata1 ]; then
         && sed -i '/init.d/c pkill -sighup clamd' /etc/logrotate.d/clamav-daemon \
         && sed -i '/^Foreground /c Foreground true' /etc/clamav/freshclam.conf \
         && sed -i 's/^bind-address/#bind-address/' /etc/mysql/mysql.conf.d/mysqld.cnf
+
+       sed -i 's/1.3.0/1.3.3/' /opt/iredmail/pkgs/MD5.misc /opt/iredmail/conf/roundcube \
+    && sed -i 's/9f81625029663c7b19402542356abd5e/71b16babe3beb7639ad7a4595b3ac92a/' /opt/iredmail/pkgs/MD5.misc \
 
     echo
     echo "Iredmail is ready."
