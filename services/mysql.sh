@@ -49,9 +49,10 @@ if [ ! -z ${DOMAIN} ]; then
     sed -i "s/DOMAIN/${DOMAIN}/g" $tmp
     
     # Update default email accounts
-    if [ ! -z ${POSTMASTER_PASSWORD} ]; then 
+    if [ ! -z ${POSTMASTER_PASSWORD} ]; then
+        pppp=$(doveadm pw -s "ssha512" -p "$POSTMASTER_PASSWORD")
         echo "(postmaster password) "
-        echo "UPDATE mailbox SET password='${POSTMASTER_PASSWORD}' WHERE username='postmaster@${DOMAIN}';" >> $tmp
+        echo "UPDATE mailbox SET password='${pppp}' WHERE username='postmaster@${DOMAIN}';" >> $tmp
     fi
     
     mysql -u root -p${MYSQL_ROOT_PASSWORD} vmail < $tmp > /dev/null 2>&1
