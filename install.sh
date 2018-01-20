@@ -28,9 +28,9 @@ echo "Generating config..."
 sh ./config-gen ${hostname} ${domain} > ./config
 echo "Config ready."
 
-echo "Initializing database..."
-mysqld --initialize-insecure
-echo "Database initialized."
+#echo "Initializing database..."
+#mysqld --initialize-insecure
+#echo "Database initialized."
 
 mysqld --skip-networking --socket=/var/run/mysqld/mysqld.sock &
 pid="$!"
