@@ -8,7 +8,7 @@ sed -i "s/innodb_thread_concurrency.*/innodb_thread_concurrency       = $(($CPU_
 sed -i "s/innodb_buffer_pool_size.*/innodb_buffer_pool_size         = $(printf "%.0f" $((($RAM_COUNT-512)*8/10)))M/" /etc/mysql/mysql.conf.d/mysqld.cnf
 
 
-if [ "$1" = "bash" ] && [ ! -f /var/lib/mysql/ibdata1 ]; then
+if [ "$1" = "/sbin/my_init" ] && [ ! -f /var/lib/mysql/ibdata1 ]; then
     echo "Initializing..."
     mkdir -p /var/lib/mysql
     mkdir -p /var/run/mysqld

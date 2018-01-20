@@ -119,4 +119,4 @@ COPY entrypoint.sh /usr/bin/entrypoint
 RUN chmod +x /usr/bin/entrypoint
 
 ENTRYPOINT ["/usr/bin/entrypoint"]
-CMD ["bash"]
+CMD ["/sbin/my_init"]
